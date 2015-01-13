@@ -11,7 +11,8 @@ output:
 The dataset was extracted from the activity.zip and loaded into R using read.csv().  
 The "date" strings are parsed using ymd().
 
-```{r}
+
+```r
 library(utils)
 library(lubridate)
 
@@ -31,12 +32,24 @@ data <- transform(data,
 summary(data)
 ```
 
+```
+##      steps             date               interval     
+##  Min.   :  0.00   Min.   :2012-10-01   Min.   :   0.0  
+##  1st Qu.:  0.00   1st Qu.:2012-10-16   1st Qu.: 588.8  
+##  Median :  0.00   Median :2012-10-31   Median :1177.5  
+##  Mean   : 37.38   Mean   :2012-10-31   Mean   :1177.5  
+##  3rd Qu.: 12.00   3rd Qu.:2012-11-15   3rd Qu.:1766.2  
+##  Max.   :806.00   Max.   :2012-11-30   Max.   :2355.0  
+##  NA's   :2304
+```
+
 ## What is mean total number of steps taken per day?
 For this part of the assignment, the missing values in the dataset were ignored.
 
 ### Make a histogram of the total number of steps taken each day.
 
-```{r totalSteps}
+
+```r
 library(dplyr)
 
 # prepare to collapse the rows by "date"
@@ -50,7 +63,20 @@ totalSteps <- summarize(data_byDate,
                         sum_steps=sum(steps))
 
 summary(totalSteps)
+```
 
+```
+##       date                count        count.na        sum_steps    
+##  Min.   :2012-10-01   Min.   :288   Min.   :  0.00   Min.   :   41  
+##  1st Qu.:2012-10-16   1st Qu.:288   1st Qu.:  0.00   1st Qu.: 8841  
+##  Median :2012-10-31   Median :288   Median :  0.00   Median :10765  
+##  Mean   :2012-10-31   Mean   :288   Mean   : 37.77   Mean   :10766  
+##  3rd Qu.:2012-11-15   3rd Qu.:288   3rd Qu.:  0.00   3rd Qu.:13294  
+##  Max.   :2012-11-30   Max.   :288   Max.   :288.00   Max.   :21194  
+##                                                      NA's   :8
+```
+
+```r
 # plot the histogram
 with(totalSteps, {
     xname="total number of steps taken per day"
@@ -61,25 +87,40 @@ with(totalSteps, {
 })
 ```
 
+![plot of chunk totalSteps](figure/totalSteps-1.png) 
+
 ### Calculate and report the mean and median total number of steps taken per day
 
-```{r}
+
+```r
 # remove NAs when computing mean and median
 meanTotalStepsPerDay <- mean(totalSteps$sum_steps, na.rm=TRUE)
 medianTotalStepsPerDay <- median(totalSteps$sum_steps, na.rm=TRUE)
 
 print(meanTotalStepsPerDay)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 print(medianTotalStepsPerDay)
 ```
-The mean total number of steps taken per day = `r meanTotalStepsPerDay`.
 
-The median total number of steps taken per day = `r medianTotalStepsPerDay`.
+```
+## [1] 10765
+```
+The mean total number of steps taken per day = 1.0766189 &times; 10<sup>4</sup>.
+
+The median total number of steps taken per day = 10765.
 
 ## What is the average daily activity pattern?
 
 ### Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
-```{r averageSteps}
+
+```r
 # prepare to collapse the rows by "interval"
 data_byInterval <- group_by(data, 
                             interval)
@@ -91,7 +132,19 @@ averageSteps <- summarize(data_byInterval,
                           mean_steps.na.rm=mean(steps, na.rm=TRUE))
 
 summary(averageSteps)
+```
 
+```
+##     interval          count       count.na mean_steps.na.rm 
+##  Min.   :   0.0   Min.   :61   Min.   :8   Min.   :  0.000  
+##  1st Qu.: 588.8   1st Qu.:61   1st Qu.:8   1st Qu.:  2.486  
+##  Median :1177.5   Median :61   Median :8   Median : 34.113  
+##  Mean   :1177.5   Mean   :61   Mean   :8   Mean   : 37.383  
+##  3rd Qu.:1766.2   3rd Qu.:61   3rd Qu.:8   3rd Qu.: 52.835  
+##  Max.   :2355.0   Max.   :61   Max.   :8   Max.   :206.170
+```
+
+```r
 # Time series plot of the 5-minute interval (x-axis) and 
 # the average number of steps taken, averaged across all days (y-axis)
 with(averageSteps, {
@@ -105,9 +158,12 @@ with(averageSteps, {
 })
 ```
 
+![plot of chunk averageSteps](figure/averageSteps-1.png) 
+
 ### Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-```{r}
+
+```r
 # which row has the highest mean steps
 row <- which(averageSteps$mean_steps.na.rm == max(averageSteps$mean_steps.na.rm))
 
@@ -117,13 +173,18 @@ intervalWithMaxMeanSteps <- averageSteps[row,]$interval
 print(intervalWithMaxMeanSteps)
 ```
 
-The 5-minute interval with the maximum number of steps, averaged across all days = `r intervalWithMaxMeanSteps`.
+```
+## [1] 835
+```
+
+The 5-minute interval with the maximum number of steps, averaged across all days = 835.
 
 ## Imputing missing values
 
 ### Calculate and report the total number of missing values in the dataset
 
-```{r}
+
+```r
 ## find out whether there are NAs in each of the 3 columns
 count.na <- lapply(data, 
                    function(column) sum(is.na(column)))
@@ -131,11 +192,22 @@ count.na <- lapply(data,
 print(count.na)
 ```
 
-The number of rows with NA in column "steps" is `r count.na$steps`.
-The number of rows with NA in column "date" is `r count.na$date`.
-The number of rows with NA in column "interval" is `r count.na$interval`.
+```
+## $steps
+## [1] 2304
+## 
+## $date
+## [1] 0
+## 
+## $interval
+## [1] 0
+```
 
-Therefore, the total number of missing values in the dataset = `r count.na$steps`.
+The number of rows with NA in column "steps" is 2304.
+The number of rows with NA in column "date" is 0.
+The number of rows with NA in column "interval" is 0.
+
+Therefore, the total number of missing values in the dataset = 2304.
 
 ### Devise a strategy for filling in all of the missing values in the dataset.
 
@@ -144,7 +216,8 @@ The chosen strategy is:
 
 ### Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
-```{r}
+
+```r
 # make a copy of the original data
 dataNew <- data
 
@@ -167,9 +240,20 @@ for (i in seq_along(dataNew$interval))
 summary(dataNew)
 ```
 
+```
+##      steps             date               interval     
+##  Min.   :  0.00   Min.   :2012-10-01   Min.   :   0.0  
+##  1st Qu.:  0.00   1st Qu.:2012-10-16   1st Qu.: 588.8  
+##  Median :  0.00   Median :2012-10-31   Median :1177.5  
+##  Mean   : 37.38   Mean   :2012-10-31   Mean   :1177.5  
+##  3rd Qu.: 27.00   3rd Qu.:2012-11-15   3rd Qu.:1766.2  
+##  Max.   :806.00   Max.   :2012-11-30   Max.   :2355.0
+```
+
 ### Make a histogram of the total number of steps taken each day. 
 
-```{r totalStepsNewDataSet}
+
+```r
 # prepare to collapse the rows by "date"
 dataNew_byDate <- group_by(dataNew, 
                            date)
@@ -180,7 +264,19 @@ totalStepsNew <- summarize(dataNew_byDate,
                            sum_steps=sum(steps))
 
 summary(totalStepsNew)
+```
 
+```
+##       date                count        count.na   sum_steps    
+##  Min.   :2012-10-01   Min.   :288   Min.   :0   Min.   :   41  
+##  1st Qu.:2012-10-16   1st Qu.:288   1st Qu.:0   1st Qu.: 9819  
+##  Median :2012-10-31   Median :288   Median :0   Median :10766  
+##  Mean   :2012-10-31   Mean   :288   Mean   :0   Mean   :10766  
+##  3rd Qu.:2012-11-15   3rd Qu.:288   3rd Qu.:0   3rd Qu.:12811  
+##  Max.   :2012-11-30   Max.   :288   Max.   :0   Max.   :21194
+```
+
+```r
 # plot the histogram
 with(totalStepsNew, {
     xname="total number of steps taken per day"
@@ -191,22 +287,36 @@ with(totalStepsNew, {
 })
 ```
 
+![plot of chunk totalStepsNewDataSet](figure/totalStepsNewDataSet-1.png) 
+
 ### Calculate and report the mean and median total number of steps taken per day.
 
-```{r}
+
+```r
 # compute mean and median
 meanTotalStepsPerDayNew <- mean(totalStepsNew$sum_steps)
 medianTotalStepsPerDayNew <- median(totalStepsNew$sum_steps)
 
 print(meanTotalStepsPerDayNew)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 print(medianTotalStepsPerDayNew)
+```
+
+```
+## [1] 10766.19
 ```
 
 With the new DataSet:
 
-The mean total number of steps taken per day = `r meanTotalStepsPerDayNew`.
+The mean total number of steps taken per day = 1.0766189 &times; 10<sup>4</sup>.
 
-The median total number of steps taken per day = `r medianTotalStepsPerDayNew`.
+The median total number of steps taken per day = 1.0766189 &times; 10<sup>4</sup>.
 
 ### Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
@@ -218,7 +328,8 @@ For this part, the new DataSet with filled-in missing values was used.
 
 ### Create a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
 
-```{r}
+
+```r
 # function that examines each date in "dates" to see if it is a weekday
 # or weekend (Sat/Sun).  It returns a character vector of the same length
 # as "dates"
@@ -251,9 +362,20 @@ dataNew <- transform(dataNew,
 summary(dataNew)
 ```
 
+```
+##      steps             date               interval         day.type    
+##  Min.   :  0.00   Min.   :2012-10-01   Min.   :   0.0   weekday:12960  
+##  1st Qu.:  0.00   1st Qu.:2012-10-16   1st Qu.: 588.8   weekend: 4608  
+##  Median :  0.00   Median :2012-10-31   Median :1177.5                  
+##  Mean   : 37.38   Mean   :2012-10-31   Mean   :1177.5                  
+##  3rd Qu.: 27.00   3rd Qu.:2012-11-15   3rd Qu.:1766.2                  
+##  Max.   :806.00   Max.   :2012-11-30   Max.   :2355.0
+```
+
 ### Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
 
-```{r averageStepsNewDataSet}
+
+```r
 library(lattice)
 
 # prepare to collapse the rows by "interval" and "day.type"
@@ -268,7 +390,26 @@ averageStepsNew <- summarize(dataNew_byIntervalDayType,
                              mean_steps=mean(steps))
 
 summary(averageStepsNew)
+```
 
+```
+##     interval         day.type       count         count.na
+##  Min.   :   0.0   weekday:288   Min.   :16.0   Min.   :0  
+##  1st Qu.: 588.8   weekend:288   1st Qu.:16.0   1st Qu.:0  
+##  Median :1177.5                 Median :30.5   Median :0  
+##  Mean   :1177.5                 Mean   :30.5   Mean   :0  
+##  3rd Qu.:1766.2                 3rd Qu.:45.0   3rd Qu.:0  
+##  Max.   :2355.0                 Max.   :45.0   Max.   :0  
+##    mean_steps     
+##  Min.   :  0.000  
+##  1st Qu.:  2.047  
+##  Median : 28.133  
+##  Mean   : 38.988  
+##  3rd Qu.: 61.263  
+##  Max.   :230.378
+```
+
+```r
 # Panel plot of "mean_steps" vs "interval" conditioned by "data.type",
 # using top/bottom panels
 with(averageStepsNew, {
@@ -278,3 +419,5 @@ with(averageStepsNew, {
            xlab="Interval")
 })
 ```
+
+![plot of chunk averageStepsNewDataSet](figure/averageStepsNewDataSet-1.png) 
